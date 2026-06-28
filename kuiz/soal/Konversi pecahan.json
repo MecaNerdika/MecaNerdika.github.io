@@ -1,0 +1,224 @@
+{
+  "meta": {
+    "title": "Kuis Aritmetika Dasar",
+    "id": "Konversi pecahan",
+    "time": { "hours": 0, "minutes": 20, "seconds": 0 },
+    "password": "pass",
+    "type": "multiplequestions",
+    "scoring": {
+      "correct": 1,
+      "wrong": 0,
+      "empty": 0
+    },
+    "shuffleQuestions": true,
+    "shuffleOptions": true,
+    "useMathJax": true,
+    "passingScore": 70
+  },
+  "questions": [
+    {
+      "q": "Ubah pecahan campuran \\(1 \\dfrac{3}{4}\\) menjadi pecahan biasa.",
+      "o": [
+        "\\(\\dfrac{7}{4}\\)",
+        "\\(\\dfrac{5}{4}\\)",
+        "\\(\\dfrac{9}{4}\\)",
+        "\\(\\dfrac{11}{4}\\)"
+      ],
+      "a": 3
+    },
+    {
+      "q": "Ubah pecahan campuran \\(2 \\dfrac{2}{5}\\) menjadi pecahan biasa.",
+      "o": [
+        "\\(\\dfrac{12}{5}\\)",
+        "\\(\\dfrac{10}{5}\\)",
+        "\\(\\dfrac{14}{5}\\)",
+        "\\(\\dfrac{8}{5}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah pecahan campuran \\(3 \\dfrac{1}{3}\\) menjadi pecahan biasa.",
+      "o": [
+        "\\(\\dfrac{9}{3}\\)",
+        "\\(\\dfrac{10}{3}\\)",
+        "\\(\\dfrac{11}{3}\\)",
+        "\\(\\dfrac{12}{3}\\)"
+      ],
+      "a": 1
+    },
+    {
+      "q": "Ubah pecahan campuran \\(4 \\dfrac{3}{8}\\) menjadi pecahan biasa.",
+      "o": [
+        "\\(\\dfrac{35}{8}\\)",
+        "\\(\\dfrac{32}{8}\\)",
+        "\\(\\dfrac{34}{8}\\)",
+        "\\(\\dfrac{37}{8}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah pecahan campuran \\(5 \\dfrac{4}{7}\\) menjadi pecahan biasa.",
+      "o": [
+        "\\(\\dfrac{39}{7}\\)",
+        "\\(\\dfrac{34}{7}\\)",
+        "\\(\\dfrac{37}{7}\\)",
+        "\\(\\dfrac{41}{7}\\)"
+      ],
+      "a": 0
+    },
+
+    {
+      "q": "Ubah \\(0{,}6\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{3}{5}\\)",
+        "\\(\\dfrac{6}{10}\\)",
+        "\\(\\dfrac{2}{3}\\)",
+        "\\(\\dfrac{1}{6}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(0{,}125\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{1}{8}\\)",
+        "\\(\\dfrac{125}{1000}\\)",
+        "\\(\\dfrac{1}{4}\\)",
+        "\\(\\dfrac{5}{8}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(0{,}75\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{3}{4}\\)",
+        "\\(\\dfrac{75}{100}\\)",
+        "\\(\\dfrac{6}{8}\\)",
+        "\\(\\dfrac{2}{3}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(0{,}2\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{1}{5}\\)",
+        "\\(\\dfrac{2}{10}\\)",
+        "\\(\\dfrac{1}{2}\\)",
+        "\\(\\dfrac{3}{5}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(0{,}04\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{1}{25}\\)",
+        "\\(\\dfrac{4}{100}\\)",
+        "\\(\\dfrac{2}{25}\\)",
+        "\\(\\dfrac{1}{4}\\)"
+      ],
+      "a": 0
+    },
+
+    {
+      "q": "Ubah \\(20\\%\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{1}{5}\\)",
+        "\\(\\dfrac{20}{100}\\)",
+        "\\(\\dfrac{2}{5}\\)",
+        "\\(\\dfrac{1}{4}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(12{,}5\\%\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{1}{8}\\)",
+        "\\(\\dfrac{125}{1000}\\)",
+        "\\(\\dfrac{1}{4}\\)",
+        "\\(\\dfrac{5}{8}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(75\\%\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{3}{4}\\)",
+        "\\(\\dfrac{75}{100}\\)",
+        "\\(\\dfrac{6}{8}\\)",
+        "\\(\\dfrac{2}{3}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(40\\%\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{2}{5}\\)",
+        "\\(\\dfrac{4}{10}\\)",
+        "\\(\\dfrac{1}{4}\\)",
+        "\\(\\dfrac{3}{5}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(5\\%\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{1}{20}\\)",
+        "\\(\\dfrac{5}{100}\\)",
+        "\\(\\dfrac{1}{5}\\)",
+        "\\(\\dfrac{1}{25}\\)"
+      ],
+      "a": 0
+    },
+
+    {
+      "q": "Ubah \\(1{,}25\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{5}{4}\\)",
+        "\\(\\dfrac{125}{100}\\)",
+        "\\(\\dfrac{6}{5}\\)",
+        "\\(\\dfrac{4}{5}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(2{,}4\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{12}{5}\\)",
+        "\\(\\dfrac{24}{10}\\)",
+        "\\(\\dfrac{6}{5}\\)",
+        "\\(\\dfrac{5}{2}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(0{,}375\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{3}{8}\\)",
+        "\\(\\dfrac{375}{1000}\\)",
+        "\\(\\dfrac{5}{8}\\)",
+        "\\(\\dfrac{1}{3}\\)"
+      ],
+      "a": 0
+    },
+
+    {
+      "q": "Ubah \\(150\\%\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{3}{2}\\)",
+        "\\(\\dfrac{150}{100}\\)",
+        "\\(\\dfrac{5}{2}\\)",
+        "\\(\\dfrac{2}{3}\\)"
+      ],
+      "a": 0
+    },
+    {
+      "q": "Ubah \\(250\\%\\) menjadi pecahan biasa paling sederhana.",
+      "o": [
+        "\\(\\dfrac{5}{2}\\)",
+        "\\(\\dfrac{250}{100}\\)",
+        "\\(\\dfrac{3}{2}\\)",
+        "\\(\\dfrac{2}{5}\\)"
+      ],
+      "a": 0
+    }
+  ]
+}
