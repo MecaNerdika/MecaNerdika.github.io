@@ -1,4 +1,2 @@
 <h1> find me at the sirius </h1>
-Project web ini adalah proect rintisan yang dikembangkan untuk menjadi wadah bagi penulis dalam menyampaikan materi tentang matematika. untuk menggunakan web ini, pengguna hanya perlu mengunjungi mecanerdika.hithub.io/findmeatthesirius/index.html
-logika yang digunakan dalam project ini sepenuhnya dikembangkan menggunakan bantuan artificial intelegent. 
-topik yang akan ditulis dalam website ini antara lain seputar Matematika dan perkembangannya.
+Proyek web ini merupakan proyek rintisan yang dikembangkan sebagai wadah bagi penulis untuk menyampaikan materi matematika. Untuk menggunakan web ini, pengguna hanya perlu mengunjungi mecanerdika.github.io/findmeatthesirius/index.html. Logika yang digunakan dalam proyek ini sepenuhnya dikembangkan dengan bantuan artificial intelligence. Topik yang akan ditulis di website ini antara lain seputar matematika dan perkembangannya.
