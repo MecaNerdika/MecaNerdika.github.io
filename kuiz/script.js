@@ -244,8 +244,8 @@ el("#btnMulai").addEventListener("click", async () => {
     return;
   }
 
-  const btnAsli = el("btnMulai").textContent;
-  el("btnMulai").textContent = "memuat kuis";
+  const btnAsli = el("#btnMulai").textContent;
+  el("#btnMulai").textContent = "memuat kuis";
   el("#btnMulai").disabled = true;
 
   try {
