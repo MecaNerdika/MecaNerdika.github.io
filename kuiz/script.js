@@ -1,6 +1,7 @@
 //memunculkan list kuis berdasarkan folder yang terdapat dalam folder soal
 
-const webAppUrl = "https://script.google.com/macros/s/AKfycbzVIBIvjN3_cEjtRxwG5wHzi3lN9WIcaCitgDcBfAeJbraI24YbwE1Wd591UX3MIOzsFw/exec";
+const webAppUrl =
+  "https://script.google.com/macros/s/AKfycbzVIBIvjN3_cEjtRxwG5wHzi3lN9WIcaCitgDcBfAeJbraI24YbwE1Wd591UX3MIOzsFw/exec";
 
 let quizList = [];
 let questions = [];
@@ -43,7 +44,6 @@ el("#quizSearch").addEventListener("input", (e) => {
   renderQuizList(quizList.filter((q) => q.testTitle.toLowerCase().includes(k)));
 });
 
-
 // fungsi di bawah ini digunakan untuk mengacak urutan opsi dengan menyesuaikan index jawaban yang telah ada
 function shuffleOptions(q) {
   let opsiArray = [];
@@ -61,25 +61,23 @@ function shuffleOptions(q) {
 
   let indeksJawabanAsli = parseInt(q.answer);
 
-
   let opts = opsiArray.map((opt, i) => ({ opt: String(opt).trim(), i }));
-  opts=shuffle(opts);
-  let newAnswer = opts.findIndex((o)=> o.i === indeksJawabanAsli);
+  opts = shuffle(opts);
+  let newAnswer = opts.findIndex((o) => o.i === indeksJawabanAsli);
 
   return {
-    type: q.questionType|| "umum",
+    type: q.questionType || "umum",
     q: q.questions,
-    options: opts.map((o)=> o.opt),
-    answer= newAnswer,
-  }
+    options: opts.map((o) => o.opt),
+    answer: newAnswer,
+  };
 }
-
 
 let state = {
   user: null,
-  timeLeft: null, 
+  timeLeft: null,
   currentIndex: 0,
-  answers: []
+  answers: [],
 };
 
 /** RENDERING UI **/
@@ -206,7 +204,7 @@ function submitQuiz() {
     const pick = state.answers[idx];
     const correct = q.answer;
     if (pick === correct) {
-      totalBenar++;  
+      totalBenar++;
     }
   });
   const total = totalBenar;
@@ -248,48 +246,51 @@ el("#btnMulai").addEventListener("click", async () => {
 
   const btnAsli = el("btnMulai").textContent;
   el("btnMulai").textContent = "memuat kuis";
-  el("#btnMulai").disabled= true;
+  el("#btnMulai").disabled = true;
 
-  try{
+  try {
     const res = await fetch(`${webAppUrl}?id=${quizId}`);
     const data = await res.json();
 
-    if (data.error){
+    if (data.error) {
       alert(data.error);
-    return;
+      return;
     }
 
-  if (data.testPassword && data.testPassword.toString().trim() !== pass) {
-    alert("Password salah, untuk mendapatkan Password silahkan berlangganan di Education Priority");
-    return;
-  }
-  if (!data.questions || data.questions.length === 0 ){
-    alert("soal belum tersedia atau waktu telah kedaluarsa, Mohon menunggu pembaharuan!. jika waktu telah benar, mohon hubungi admin Education Priority");
-    return
-  }
-  questions = data.questions.map((q,i) =>({
-    id: i+1,
-    ...shuffleOptions(q),
+    if (data.testPassword && data.testPassword.toString().trim() !== pass) {
+      alert(
+        "Password salah, untuk mendapatkan Password silahkan berlangganan di Education Priority",
+      );
+      return;
+    }
+    if (!data.questions || data.questions.length === 0) {
+      alert(
+        "soal belum tersedia atau waktu telah kedaluarsa, Mohon menunggu pembaharuan!. jika waktu telah benar, mohon hubungi admin Education Priority",
+      );
+      return;
+    }
+    questions = data.questions.map((q, i) => ({
+      id: i + 1,
+      ...shuffleOptions(q),
+    }));
+    state.user = { nama };
+    const durasiMenit = parseInt(data.testDuration) || 20;
+    state.timeLeft = durasiMenit * 60;
+    el("#infoUser").textContent = ` peserta: ${nama}`;
+    el(".brand").textContent = data.testTitle || "kuis aktif";
 
-  }));
-  state.user = {nama}
-  const durasiMenit = parseInt(data.testDuration) || 20;
-  state.timeLeft = durasiMenit*60;
-  el("#infoUser").textContent = ` peserta: ${nama}`;
-  el(".brand").textContent = data.testTitle || "kuis aktif"
-
-  showSection("quiz");
-  startTimer();
-  mountNav();
-  goTo(0);
-  renderTimer();
-}catch(error){
-  console.error("error saat memulai kuis",error);
-  alert("terjadi kesalahan koneksi saat mengunduh soal.");
- } finally{
-  el("#btnMulai").textContent = btnAsli;
-  el("btnMulai").disabled = false;
- }
+    showSection("quiz");
+    startTimer();
+    mountNav();
+    goTo(0);
+    renderTimer();
+  } catch (error) {
+    console.error("error saat memulai kuis", error);
+    alert("terjadi kesalahan koneksi saat mengunduh soal.");
+  } finally {
+    el("#btnMulai").textContent = btnAsli;
+    el("btnMulai").disabled = false;
+  }
 });
 
 /** 
@@ -342,7 +343,7 @@ window.addEventListener("keydown", (e) => {
 el("#btnUlang").addEventListener("click", () => {
   state = {
     user: state.user,
-    timeLeft: durasiMenit*60,
+    timeLeft: durasiMenit * 60,
     currentIndex: 0,
     answers: Array(180).fill(null),
   };
