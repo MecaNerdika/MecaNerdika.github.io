@@ -1,58 +1,10 @@
-/**
- * load soal dari file json dengan struktur data seperti ini 
-{
-  "meta": {
-    "title": "....",
-    "id": "....",
-    "time": { "hours": ..., "minutes": ..., "seconds": .... },
-    "password": "...",
-    "type": "multiplequestions",
-    "scoring": {
-      "correct": 1,
-      "wrong": 0,
-      "empty": 0
-    },
-    "shuffleQuestions": true,
-    "shuffleOptions": true,
-    "useMathJax": true,
-    "passingScore": 70
-  },
-  "questions": [
-    { "q": "aaaaaaa", "o": ["a", "b", "c", "d"], "a": 0 },
-    { "q": "bbbbbb", "o": ["a", "b", "c", "d"], "a": 2 }
-  ]
-}
-
- **/
 //memunculkan list kuis berdasarkan folder yang terdapat dalam folder soal
-console.log("SCRIPT.JS TERLOAD");
-// perlu dirapikan
-const hours = data.meta.time.hours;
-const minutes = data.meta.time.minutes;
-const seconds = data.meta.time.seconds;
 
-let QUIZ_LIST = [];
-fetch("soal/index.json")
-  .then((res) => {
-    console.log("STATUS:", res.status);
-    return res.json();
-  })
-  .then((data) => {
-    console.log("DATA:", data);
-  })
-  .catch((err) => {
-    console.error("FETCH ERROR:", err);
-  });
+const webAppUrl = "https://script.google.com/macros/s/AKfycbzVIBIvjN3_cEjtRxwG5wHzi3lN9WIcaCitgDcBfAeJbraI24YbwE1Wd591UX3MIOzsFw/exec";
 
-fetch("soal/index.json")
-  .then((r) => r.json())
-  .then((data) => {
-    QUIZ_LIST = data;
-    console.log(QUIZ_LIST.title);
-    renderQuizList(data);
-  });
+let quizList = [];
+let questions = [];
 
-/** UTIL **/
 const el = (sel) => document.querySelector(sel);
 const els = (sel) => Array.from(document.querySelectorAll(sel));
 const shuffle = (arr) =>
@@ -64,17 +16,31 @@ const shuffle = (arr) =>
 // memunculkan dropdown pada pilihan kuis
 function renderQuizList(list) {
   const sel = el("#quizSelect");
-  sel.innerHTML = "";
+  sel.innerHTML = '<option value=""> -- pilih kuis --</option>';
   list.forEach((q) => {
     const o = document.createElement("option");
-    o.value = q.id;
-    o.textContent = q.title;
+    o.value = q.testID;
+    o.textContent = q.testTittle;
     sel.appendChild(o);
   });
 }
+async function muatDaftarKuisAwal() {
+  try {
+    const res = await fetch(webAppUrl);
+    quizList = await res.json();
+    renderQuizList(quizList);
+  } catch (error) {
+    console.error("gagal memuat kuis", error);
+    el("#quizSelect").innerHTML =
+      '<option value="">gagal memuat data kuis</option>';
+  }
+}
+
+muatDaftarKuisAwal();
+
 el("#quizSearch").addEventListener("input", (e) => {
   const k = e.target.value.toLowerCase();
-  renderQuizList(QUIZ_LIST.filter((q) => q.title.toLowerCase().includes(k)));
+  renderQuizList(quizList.filter((q) => q.title.toLowerCase().includes(k)));
 });
 
 const SOAL_fungsi = [].map((x) => ({
@@ -88,15 +54,35 @@ S_fungsi = shuffle(SOAL_fungsi);
 
 // fungsi di bawah ini digunakan untuk mengacak urutan opsi dengan menyesuaikan index jawaban yang telah ada
 function shuffleOptions(q) {
-  let opts = q.options.map((opt, i) => ({ opt, i }));
-  opts = shuffle(opts); // pake fungsi shuffle yang sudah kamu punya
-  let newAnswer = opts.findIndex((o) => o.i === q.answer);
+  let opsiArray = [];
+
+  try {
+    if (typeof q.options === "string") {
+      opsiArray = JSON.parse(q.options);
+    } else {
+      opsiArray = q.options || [];
+    }
+  } catch (e) {
+    console.error("gagal parse opsi:", e);
+    opsiArray = [];
+  }
+
+  let indeksJawabanAsli = parseInt(q.answer);
+
+
+  let opts = opsiArray.map((opt, i) => ({ opt: String(opt).trim(), i }));
+  opts=shuffle(opts);
+  let newAnswer = opts.findIndex((o)=> o.i === indeksJawabanAsli);
+
   return {
-    ...q,
-    options: opts.map((o) => o.opt),
-    answer: newAnswer,
-  };
+    type: q.questionType|| "umum",
+    q: q.questions,
+    options: opts.map((o)=o.opt),
+    answer= newAnswer,
+  }
 }
+
+
 //*/
 let QUESTIONS = [...S_fungsi].map((q, i) => ({
   id: i + 1,
@@ -269,37 +255,56 @@ el("#btnMulai").addEventListener("click", async () => {
   const nama = el("#nama").value.trim();
   const pass = el("#pass").value.trim();
   const quizId = el("#quizSelect").value;
-  console.log(quizId);
+
   if (!nama || !pass || !quizId) {
     alert("Lengkapi semua isian");
     return;
   }
 
-  const res = await fetch(`soal/${quizId}.json`);
-  const data = await res.json();
+  const btnAsli = el("btnMulai").textContent;
+  el("btnMulai").textContent = "memuat kuis";
+  el("#btnMulai").disabled= true;
 
-  if (data.meta.password !== pass) {
-    alert("Password salah, coba tanya sir hardi passwordnya apa ");
+  try{
+    const res = await fetch(`${webAppUrl}?id=${quizId}`);
+    const data = await res.json();
+
+    if (data.error){
+      alert(data.error);
+    return;
+    }
+
+  if (data.testPassword && data.testPassword.toString().trim() !== pass) {
+    alert("Password salah, untuk mendapatkan Password silahkan berlangganan di Education Priority");
     return;
   }
-
-  // setup quiz
-  QUESTIONS = data.questions.map((q, i) => ({
-    id: i + 1,
+  if (!data.questions || data.questions.length === 0 ){
+    alert("soal belum tersedia atau waktu telah kedaluarsa, Mohon menunggu pembaharuan!. jika waktu telah benar, mohon hubungi admin Education Priority");
+    return
+  }
+  questions = data.questions.map((q,i) =>({
+    id: i+1,
     ...shuffleOptions(q),
+
   }));
-
-  state.user = { nama };
-  state.timeLeft = data.meta.time;
-
-  el("#infoUser").textContent = `Peserta: ${nama}`;
-  el(".brand").textContent = data.meta.title;
+  state.user = {nama}
+  const durasiMenit = parseInt(data.testDuration) || 20;
+  state.timeLeft = durasiMenit*60;
+  el("#infoUser").textContent = ` peserta: ${nama}`;
+  el(".brand").textContent = data.testTitle || "kuis aktif"
 
   showSection("quiz");
   startTimer();
   mountNav();
   goTo(0);
   renderTimer();
+}catch(error){
+  console.error("error saat memulai kuis",error);
+  alert("terjadi kesalahan koneksi saat mengunduh soal.");
+ } finally{
+  el("#btnMulai").textContent = btnAsli;
+  el("btnMulai").disabled = false;
+ }
 });
 
 /** 
