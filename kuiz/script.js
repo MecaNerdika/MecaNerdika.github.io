@@ -20,7 +20,7 @@ function renderQuizList(list) {
   list.forEach((q) => {
     const o = document.createElement("option");
     o.value = q.testID;
-    o.textContent = q.testTittle;
+    o.textContent = q.testTitle;
     sel.appendChild(o);
   });
 }
@@ -40,17 +40,9 @@ muatDaftarKuisAwal();
 
 el("#quizSearch").addEventListener("input", (e) => {
   const k = e.target.value.toLowerCase();
-  renderQuizList(quizList.filter((q) => q.title.toLowerCase().includes(k)));
+  renderQuizList(quizList.filter((q) => q.testTitle.toLowerCase().includes(k)));
 });
 
-const SOAL_fungsi = [].map((x) => ({
-  type: "jarak kecepatan waktu",
-  q: x.q,
-  options: x.o,
-  answer: x.a,
-}));
-
-S_fungsi = shuffle(SOAL_fungsi);
 
 // fungsi di bawah ini digunakan untuk mengacak urutan opsi dengan menyesuaikan index jawaban yang telah ada
 function shuffleOptions(q) {
@@ -77,26 +69,20 @@ function shuffleOptions(q) {
   return {
     type: q.questionType|| "umum",
     q: q.questions,
-    options: opts.map((o)=o.opt),
+    options: opts.map((o)=> o.opt),
     answer= newAnswer,
   }
 }
 
 
-//*/
-let QUESTIONS = [...S_fungsi].map((q, i) => ({
-  id: i + 1,
-  ...shuffleOptions(q),
-}));
-
 let state = {
   user: null,
-  timeLeft: 15 * 60, // 25 menit
+  timeLeft: null, 
   currentIndex: 0,
-  answers: Array(180).fill(null), // simpan index jawaban (0..3) atau null
+  answers: []
 };
 
-/** RENDERING **/
+/** RENDERING UI **/
 function formatTime(s) {
   const m = Math.floor(s / 60)
     .toString()
@@ -129,7 +115,7 @@ function startTimer() {
 function mountNav() {
   const nav = el("#nav");
   nav.innerHTML = "";
-  QUESTIONS.forEach((q, idx) => {
+  questions.forEach((q, idx) => {
     const b = document.createElement("button");
     b.textContent = idx + 1;
     b.addEventListener("click", () => {
@@ -147,15 +133,15 @@ function updateNavActive() {
     b.classList.toggle("done", state.answers[idx] !== null);
   });
   el("#infoSoal").textContent = `Soal ${state.currentIndex + 1} / ${
-    QUESTIONS.length
+    questions.length
   }`;
-  el("#infoKategori").textContent = `Kategori: ${QUESTIONS[
+  el("#infoKategori").textContent = `Kategori: ${questions[
     state.currentIndex
   ].type.toUpperCase()}`;
 }
 
 function renderQuestion() {
-  const q = QUESTIONS[state.currentIndex];
+  const q = questions[state.currentIndex];
   const container = el("#questionArea");
   container.innerHTML = "";
   const title = document.createElement("div");
@@ -189,13 +175,13 @@ function renderQuestion() {
 }
 
 function goTo(idx) {
-  state.currentIndex = Math.max(0, Math.min(QUESTIONS.length - 1, idx));
+  state.currentIndex = Math.max(0, Math.min(questions.length - 1, idx));
   updateNavActive();
   renderQuestion();
 }
 
 function next() {
-  if (state.currentIndex < QUESTIONS.length - 1) {
+  if (state.currentIndex < questions.length - 1) {
     goTo(state.currentIndex + 1);
   }
 }
@@ -207,27 +193,26 @@ function prev() {
 
 function resetAnswers() {
   if (!confirm("Yakin reset semua jawaban?")) return;
-  state.answers = Array(QUESTIONS.length).fill(null);
+  state.answers = Array(questions.length).fill(null);
   updateNavActive();
   renderQuestion();
 }
 
 function submitQuiz() {
   // hitung skor per kategori
-  let sSin = 0,
-    sAnt = 0,
-    sHip = 0;
-  QUESTIONS.forEach((q, idx) => {
+  let totalBenar = 0;
+
+  questions.forEach((q, idx) => {
     const pick = state.answers[idx];
     const correct = q.answer;
     if (pick === correct) {
-      if (q.type === "jarak kecepatan waktu") sSin++;
+      totalBenar++;  
     }
   });
-  const total = sSin + sAnt + sHip;
+  const total = totalBenar;
 
   // tampilkan
-  let total_question = QUESTIONS.length;
+  let total_question = questions.length;
 
   el("#scoreTotal").textContent = `${total} / ${total_question}`;
   el("#resultUser").textContent = `Peserta: ${
@@ -357,11 +342,11 @@ window.addEventListener("keydown", (e) => {
 el("#btnUlang").addEventListener("click", () => {
   state = {
     user: state.user,
-    timeLeft: 15 * 60,
+    timeLeft: durasiMenit*60,
     currentIndex: 0,
     answers: Array(180).fill(null),
   };
-  QUESTIONS = shuffle(QUESTIONS); // acak ulang urutan
+  questions = shuffle(questions); // acak ulang urutan
   showSection("quiz");
   startTimer();
   mountNav();
