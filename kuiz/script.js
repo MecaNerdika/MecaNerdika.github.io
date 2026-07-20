@@ -145,7 +145,14 @@ function renderQuestion() {
   const title = document.createElement("div");
   title.className = "q-title";
 
-  title.innerHTML = q.q;
+  let teksSoal = q.q;
+
+  if (typeof teksSoal === "string") {
+    // Mengubah double backslash (\\) menjadi single backslash (\) agar MathJax mengenali \( dan \)
+    teksSoal = teksSoal.replace(/\\\\/g, "\\");
+  }
+
+  title.innerHTML = teksSoal;
   container.appendChild(title);
 
   const list = document.createElement("div");
@@ -275,6 +282,8 @@ el("#btnMulai").addEventListener("click", async () => {
       id: i + 1,
       ...shuffleOptions(q),
     }));
+
+    state.answers = Array(questions.length).fill(null);
     state.user = { nama };
     const durasiMenit = parseInt(data.testDuration) || 20;
     state.timeLeft = durasiMenit * 60;
@@ -347,7 +356,7 @@ el("#btnUlang").addEventListener("click", () => {
     user: state.user,
     timeLeft: durasiMenit * 60,
     currentIndex: 0,
-    answers: Array(180).fill(null),
+    answers: Array(questions.length).fill(null),
   };
   questions = shuffle(questions); // acak ulang urutan
   showSection("quiz");
