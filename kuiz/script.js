@@ -169,7 +169,9 @@ function renderQuestion() {
     list.appendChild(row);
   });
   container.appendChild(list);
-  MathJax.typeset();
+  if (window.MathJax && typeof MathJax.typeset === "function") {
+    MathJax.typeset();
+  }
 }
 
 function goTo(idx) {
@@ -289,7 +291,7 @@ el("#btnMulai").addEventListener("click", async () => {
     alert("terjadi kesalahan koneksi saat mengunduh soal.");
   } finally {
     el("#btnMulai").textContent = btnAsli;
-    el("btnMulai").disabled = false;
+    el("#btnMulai").disabled = false;
   }
 });
 
