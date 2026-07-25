@@ -261,6 +261,8 @@ function submitQuiz() {
 
   // stop timer, ganti section
   if (timerInterval) clearInterval(timerInterval);
+  localStorage.removeItem("quiz_end_time");
+
   showSection("result");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -319,6 +321,8 @@ el("#btnMulai").addEventListener("click", async () => {
 
     state.answers = Array(questions.length).fill(null);
     state.user = { nama };
+
+    localStorage.removeItem("quiz_end_time");
     const durasiMenit = parseInt(data.testDuration) || 20;
     state.timeLeft = durasiMenit * 60;
     el("#infoUser").textContent = ` peserta: ${nama}`;
