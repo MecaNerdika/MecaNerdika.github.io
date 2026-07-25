@@ -134,7 +134,6 @@ function startTimer(durasiMenit) {
     if (elTimer) {
       elTimer.textContent = `${m}:${s}`;
     }
-    console.log("debug 1 berhasil");
   }
 
   // Eksekusi sekali secara langsung agar UI tidak 'lag' 1 detik di awal
@@ -261,7 +260,7 @@ function submitQuiz() {
   } (waktu habis/kumpul)`;
 
   // stop timer, ganti section
-  if (tick) clearInterval(tick);
+  if (timerInterval) clearInterval(timerInterval);
   showSection("result");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -294,6 +293,7 @@ el("#btnMulai").addEventListener("click", async () => {
   try {
     const res = await fetch(`${webAppUrl}?id=${quizId}`);
     const data = await res.json();
+    console.log("Durasi dari sheet:", data.testDuration);
 
     if (data.error) {
       alert(data.error);
