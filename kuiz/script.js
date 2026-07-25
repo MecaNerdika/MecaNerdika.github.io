@@ -322,11 +322,12 @@ el("#btnMulai").addEventListener("click", async () => {
     state.answers = Array(questions.length).fill(null);
     state.user = { nama };
 
-    localStorage.removeItem("quiz_end_time");
     const durasiMenit = parseInt(data.testDuration) || 20;
-    state.timeLeft = durasiMenit * 60;
+    state.timeLeft = durasiMenit;
     el("#infoUser").textContent = ` peserta: ${nama}`;
     el(".brand").textContent = data.testTitle || "kuis aktif";
+
+    localStorage.removeItem("quiz_end_time");
 
     showSection("quiz");
     startTimer(durasiMenit);
@@ -390,19 +391,17 @@ window.addEventListener("keydown", (e) => {
 
 // Ulang dari hasil
 el("#btnUlang").addEventListener("click", () => {
-  const durasiMenit = parseInt(data.testDuration, 10) || 20;
   state = {
     user: state.user,
     timeLeft: durasiMenit * 60,
     currentIndex: 0,
     answers: Array(questions.length).fill(null),
   };
-  state.durasiMenit = durasiMenit;
 
   questions = shuffle(questions); // acak ulang urutan
   localStorage.removeItem("quiz_end_time");
   showSection("quiz");
-  startTimer(durasiMenit);
+  startTimer(state.timeLeft);
   mountNav();
   goTo(0);
   renderTimer();
