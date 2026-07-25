@@ -393,7 +393,7 @@ window.addEventListener("keydown", (e) => {
 el("#btnUlang").addEventListener("click", () => {
   state = {
     user: state.user,
-    timeLeft: durasiMenit * 60,
+    //timeLeft: durasiMenit * 60,
     currentIndex: 0,
     answers: Array(questions.length).fill(null),
   };
