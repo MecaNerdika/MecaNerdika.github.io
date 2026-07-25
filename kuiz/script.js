@@ -134,6 +134,7 @@ function startTimer(durasiMenit) {
     if (elTimer) {
       elTimer.textContent = `${m}:${s}`;
     }
+    console.log("debug 1 berhasil");
   }
 
   // Eksekusi sekali secara langsung agar UI tidak 'lag' 1 detik di awal
