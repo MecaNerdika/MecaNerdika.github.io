@@ -324,6 +324,7 @@ el("#btnMulai").addEventListener("click", async () => {
 
     const durasiMenit = parseInt(data.testDuration) || 20;
     state.timeLeft = durasiMenit;
+    state.durasiMenit = durasiMenit;
     el("#infoUser").textContent = ` peserta: ${nama}`;
     el(".brand").textContent = data.testTitle || "kuis aktif";
 
@@ -401,7 +402,7 @@ el("#btnUlang").addEventListener("click", () => {
   questions = shuffle(questions); // acak ulang urutan
   localStorage.removeItem("quiz_end_time");
   showSection("quiz");
-  startTimer(state.timeLeft);
+  startTimer(state.durasiMenit);
   mountNav();
   goTo(0);
   renderTimer();
