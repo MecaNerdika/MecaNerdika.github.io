@@ -100,14 +100,47 @@ function renderTimer() {
   }
 }
 
-let tick = null;
-function startTimer() {
-  if (tick) clearInterval(tick);
-  tick = setInterval(() => {
-    state.timeLeft--;
-    renderTimer();
-    if (state.timeLeft <= 0) clearInterval(tick);
-  }, 1000);
+let timerInterval = null;
+
+function startTimer(durasiMenit) {
+  if (timerInterval) clearInterval(timerInterval);
+  let endTime = localStorage.getItem("quiz_end_time");
+  if (!endTime) {
+    endTime = Date.now() + durasiMenit * 60 * 1000;
+    localStorage.setItem("quiz_end_time", endTime);
+  } else {
+    endTime = parseInt(endTime, 10);
+  }
+
+  function hitungWaktu() {
+    const sekarang = Date.now();
+    const sisaDetik = Math.max(0, Math.floor((endTime - sekarang) / 1000));
+
+    // Jika waktu habis
+    if (sisaDetik <= 0) {
+      clearInterval(timerInterval);
+      localStorage.removeItem("quiz_end_time"); // Hapus target waktu
+      alert("Waktu kuis telah habis!");
+      submitQuiz(); // Panggil fungsi submit kuis otomatis
+      return;
+    }
+
+    // Format tampilan Menit:Detik (MM:SS)
+    const m = String(Math.floor(sisaDetik / 60)).padStart(2, "0");
+    const s = String(sisaDetik % 60).padStart(2, "0");
+
+    // Tampilkan ke elemen UI timer Anda
+    const elTimer = el("#timer"); // Sesuaikan ID elemen timer Anda
+    if (elTimer) {
+      elTimer.textContent = `${m}:${s}`;
+    }
+  }
+
+  // Eksekusi sekali secara langsung agar UI tidak 'lag' 1 detik di awal
+  hitungWaktu();
+
+  // Jalankan interval setiap 1 detik
+  timerInterval = setInterval(hitungWaktu, 1000);
 }
 
 function mountNav() {
