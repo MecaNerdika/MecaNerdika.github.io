@@ -392,18 +392,15 @@ window.addEventListener("keydown", (e) => {
 
 // Ulang dari hasil
 el("#btnUlang").addEventListener("click", () => {
-  state = {
-    user: state.user,
-    //timeLeft: durasiMenit * 60,
-    currentIndex: 0,
-    answers: Array(questions.length).fill(null),
-  };
+  state.currentIndex = 0;
+  state.answers = Array(questions.length).fill(null);
 
-  questions = shuffle(questions); // acak ulang urutan
+  questions = shuffle(questions);
+  localStorage.removeItem("quiz_end_time");
+
   localStorage.removeItem("quiz_end_time");
   showSection("quiz");
   startTimer(state.durasiMenit);
   mountNav();
   goTo(0);
-  renderTimer();
 });
