@@ -80,26 +80,6 @@ let state = {
   answers: [],
 };
 
-/** RENDERING UI **/
-function formatTime(s) {
-  const m = Math.floor(s / 60)
-    .toString()
-    .padStart(2, "0");
-  const r = (s % 60).toString().padStart(2, "0");
-  return `${m}:${r}`;
-}
-
-function renderTimer() {
-  el("#timer").textContent = formatTime(state.timeLeft);
-  if (state.timeLeft <= 60) {
-    el("#timer").style.background = "#331a1a";
-    el("#timer").style.borderColor = "#7f1d1d";
-  }
-  if (state.timeLeft <= 0) {
-    submitQuiz();
-  }
-}
-
 let timerInterval = null;
 
 function startTimer(durasiMenit) {
@@ -128,7 +108,10 @@ function startTimer(durasiMenit) {
     // Format tampilan Menit:Detik (MM:SS)
     const m = String(Math.floor(sisaDetik / 60)).padStart(2, "0");
     const s = String(sisaDetik % 60).padStart(2, "0");
-
+    if (m <= 0) {
+      el("#timer").style.background = "#331a1a";
+      el("#timer").style.borderColor = "#7f1d1d";
+    }
     // Tampilkan ke elemen UI timer Anda
     const elTimer = el("#timer"); // Sesuaikan ID elemen timer Anda
     if (elTimer) {
