@@ -317,7 +317,6 @@ el("#btnMulai").addEventListener("click", async () => {
     startTimer(durasiMenit);
     mountNav();
     goTo(0);
-    renderTimer();
   } catch (error) {
     console.error("error saat memulai kuis", error);
     alert("terjadi kesalahan koneksi saat mengunduh soal.");
