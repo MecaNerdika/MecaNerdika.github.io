@@ -12,12 +12,15 @@
     ></script>
   </head>
   <body>
+    <button type="button" id="themeToggleBtn" class="theme-toggle-floating">
+      🌙 Dark
+    </button>
     <div class="app">
       <div class="logo">
         <img src="EP_blue.png" alt="logo EP" />
       </div>
       <header>
-        <div class="brand">kuis jarak kecepatan waktu</div>
+        <div class="brand" id="testTitle">Ujian Education Priority</div>
         <div class="pill" id="infoUser">Belum login</div>
         <div class="timer" id="timer">--:--</div>
       </header>
@@ -63,6 +66,32 @@
             <div class="card-inner">
               <div class="info-row">
                 <div class="pill" id="infoKategori">Kategori: -</div>
+                <div class="font-size-controls">
+                  <button
+                    type="button"
+                    class="btn-font"
+                    data-size="small"
+                    title="Ukuran Kecil"
+                  >
+                    A-
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-font"
+                    data-size="medium"
+                    title="Ukuran Normal"
+                  >
+                    A
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-font"
+                    data-size="large"
+                    title="Ukuran Besar"
+                  >
+                    A+
+                  </button>
+                </div>
                 <div class="pill" id="infoSoal">Soal 0 / 180</div>
               </div>
               <div class="question-area" id="questionArea">

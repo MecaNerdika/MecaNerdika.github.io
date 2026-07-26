@@ -6,6 +6,33 @@ const webAppUrl =
 let quizList = [];
 let questions = [];
 
+function setTheme(theme) {
+  const toggleBtn = document.getElementById("themeToggleBtn");
+
+  if (theme === "light") {
+    document.documentElement.setAttribute("data-theme", "light");
+    localStorage.setItem("quiz_theme", "light");
+    if (toggleBtn) toggleBtn.innerHTML = "☀️ Light";
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+    localStorage.setItem("quiz_theme", "dark");
+    if (toggleBtn) toggleBtn.innerHTML = "🌙 Dark";
+  }
+}
+// Event listener klik tombol toggle tema
+document.addEventListener("click", (e) => {
+  if (e.target && e.target.id === "themeToggleBtn") {
+    const currentTheme = localStorage.getItem("quiz_theme") || "dark";
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+  }
+});
+
+// Pulihkan tema tersimpan saat halaman dimuat (DOMContentLoaded)
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem("quiz_theme") || "dark";
+  setTheme(savedTheme);
+});
 function clearQuizSession() {
   localStorage.removeItem("quiz_end_time");
   localStorage.removeItem("quiz_answers");
@@ -155,9 +182,9 @@ function startTimer(durasiMenit) {
     // Tampilkan ke elemen UI timer Anda
     const elTimer = el("#timer"); // Sesuaikan ID elemen timer Anda
     if (elTimer) {
-      if (sisaDetik <= 600) {
-        elTimer.style.background = "#331a1a";
-        elTimer.style.borderColor = "#7f1d1d";
+      if (sisaDetik <= 60) {
+        elTimer.style.background = "#fa000077";
+        elTimer.style.borderColor = "#7f1d1dab";
       } else {
         elTimer.style.background = "";
         elTimer.style.borderColor = "";
@@ -200,6 +227,40 @@ function updateNavActive() {
     state.currentIndex
   ].type.toUpperCase()}`;
 }
+const FONT_SIZES = {
+  small: "14px",
+  medium: "16px",
+  large: "19px",
+};
+function setFontSize(size) {
+  const pixelSize = FONT_SIZES[size] || FONT_SIZES.medium;
+  const targetSize = FONT_SIZES[size] ? size : "medium";
+
+  // Ubah nilai variabel CSS di :root
+  document.documentElement.style.setProperty("--base-font-size", pixelSize);
+
+  // Simpan ke localStorage
+  localStorage.setItem("quiz_font_size", targetSize);
+
+  // Update status tombol aktif di UI
+  document.querySelectorAll(".btn-font").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.size === targetSize);
+  });
+}
+
+// Event Delegation untuk Klik Tombol Font
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".btn-font");
+  if (btn && btn.dataset.size) {
+    setFontSize(btn.dataset.size);
+  }
+});
+
+// Pulihkan ukuran font tersimpan saat pertama kali dimuat
+document.addEventListener("DOMContentLoaded", () => {
+  const savedSize = localStorage.getItem("quiz_font_size") || "medium";
+  setFontSize(savedSize);
+});
 
 function renderQuestion() {
   const q = questions[state.currentIndex];

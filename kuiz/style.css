@@ -1,6 +1,7 @@
 :root {
   --bg: #060000; /* slate-900 */
   --card: #111827; /* gray-900 */
+  --card-border: #2a335e;
   --muted: #334155; /* slate-600 */
   --text: #ffffff; /* gray-200 */
   --accent: #38bdf8; /* sky-400 */
@@ -9,22 +10,50 @@
   --warn: #f59e0b; /* amber-500 */
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   --radius: 16px;
+
+  --base-font-size: 15px;
+  --gradien-1: #1e293b;
+  --gradien-2: #0b3b47;
+}
+[data-theme="light"] {
+  --bg: #f1f5f9; /* Background halaman abu terang (slate-100) */
+  --card: #fff; /* Kartu & boks warna putih */
+  --card-border: #282d33; /* Border kartu lebih terang */
+  --muted: #64748b;
+  --text: #0f172a; /* Teks utama gelap (slate-900) */
+  --text-secondary: #334155;
+  --accent: #0284c7; /* Biru aksen yang kontras di latar terang */
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --gradien-1: #68b1ed;
+  --gradien-2: #f0f7ff;
 }
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-    "Helvetica Neue", Arial;
-  background: radial-gradient(1200px 800px at 10% -10%, #1e293b, transparent),
-    radial-gradient(800px 600px at 120% 0%, #0b3b47, transparent), var(--bg);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    "Helvetica Neue",
+    Arial;
+  background:
+    radial-gradient(1200px 800px at 10% -10%, var(--gradien-1), transparent),
+    radial-gradient(800px 600px at 120% 0%, var(--gradien-2), transparent),
+    var(--bg);
   color: var(--text);
   min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  color: var(--text);
+}
+p .muted {
+  color: var(--text);
 }
 .app {
   width: 100%;
@@ -57,13 +86,14 @@ header {
   font-weight: 700;
   padding: 10px 14px;
   border-radius: 999px;
-  background: #0b1220;
-  border: 1px solid #1f2a44;
+  background: var(--card);
+  border: 1px solid var(--card-border);
   box-shadow: var(--shadow);
+  color: var(--text);
 }
 .card {
-  background: linear-gradient(180deg, #0b1220, #0a1020);
-  border: 1px solid #1f2a44;
+  background: var(--card);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
@@ -97,22 +127,22 @@ input[type="password"] {
   width: 100%;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid #26314d;
-  background: #0b1220;
+  border: 1px solid var(--card-border);
+  background: var(--card);
   color: var(--text);
   outline: none;
   box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0);
 }
 label {
   font-size: 14px;
-  color: #cbd5e1;
+  color: var(--text);
 }
 .btn {
   cursor: pointer;
   padding: 12px 16px;
   border-radius: 14px;
-  background: var(--accent);
-  color: #001219;
+  background: var(--card);
+  color: var(--text);
   border: none;
   font-weight: 700;
   box-shadow: var(--shadow);
@@ -122,8 +152,8 @@ label {
   transform: translateY(1px);
 }
 .btn.secondary {
-  background: #1f2937;
-  color: #e2e8f0;
+  background: var(--card);
+  color: var(--text);
   border: 1px solid #334155;
 }
 .btn.warn {
@@ -135,7 +165,7 @@ label {
   color: #0b1220;
 }
 .muted {
-  color: #94a3b8;
+  color: var(--text);
 }
 .pill {
   display: inline-flex;
@@ -143,10 +173,10 @@ label {
   gap: 8px;
   padding: 6px 10px;
   border-radius: 999px;
-  background: #0b1220;
-  border: 1px solid #223156;
+  background: var(--card);
+  border: 1px solid var(--card-border);
   font-size: 12px;
-  color: #cbd5e1;
+  color: var(--text);
 }
 
 .question-area {
@@ -154,23 +184,85 @@ label {
   flex-direction: column;
   gap: 14px;
 }
-.q-title {
-  font-weight: 800;
-  font-size: 18px;
+.btn-font {
+  min-width: 32px;
+  height: 28px;
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px hidden var(--card-border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
+.btn-font:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+
+.btn-font.active {
+  background: var(--accent);
+  color: #001219;
+  border-color: var(--accent);
+}
+.theme-toggle-floating {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000; /* Memastikan tombol selalu berada di lapisan paling atas */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 999px; /* Bentuk pill/kapsul */
+  border: 1px solid var(--card-border);
+  background: var(--card);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-floating:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+.q-title {
+  font-weight: 400;
+  font-size: calc(var(--base-font-size) * 1.15);
+  line-height: 1.5;
+}
+
+.font-size-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .choices {
   display: grid;
   gap: 10px;
+  font-size: var(--base-font-size);
 }
 .choice {
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  border: 1px solid #1f2a44;
-  background: #0b1220;
+  border: 1px solid var(--card-border);
+  background: var(--card);
   padding: 12px;
   border-radius: 12px;
   cursor: pointer;
+  font-size: var(--base-font-size);
+  color: var(--text);
+}
+.choice:hover {
+  background: #1e293b;
+  color: #ffffff;
 }
 .choice input {
   margin-top: 4px;
@@ -188,20 +280,22 @@ label {
   width: 44px;
   height: 40px;
   border-radius: 10px;
-  border: 1px solid #1f2a44;
-  background: #0b1220;
-  color: #cbd5e1;
+  border: 1px solid var(--card-border);
+  background: var(--bg);
+  color: var(--text);
   font-weight: 700;
   cursor: pointer;
 }
 .nav button.active {
   outline: 2px solid var(--accent);
-  color: #0ea5e9;
+  background: #0a59e198;
+  color: var(--text);
 }
 .nav button.done {
-  background: #07291f;
+  background: var(--bg);
   border-color: #0b7a53;
-  color: #34d399;
+  background: #01a3347e;
+  color: var(--text);
 }
 
 .footer-actions {
@@ -228,8 +322,8 @@ label {
   gap: 10px;
 }
 .score-card {
-  background: #0b1220;
-  border: 1px solid #1f2a44;
+  background: var(--card);
+  border: 1px solid var(--card-border);
   border-radius: 14px;
   padding: 14px;
 }
