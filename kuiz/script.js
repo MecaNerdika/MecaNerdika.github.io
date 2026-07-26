@@ -39,16 +39,17 @@ function clearQuizSession() {
   localStorage.removeItem("quiz_current_index");
   localStorage.removeItem("quiz_questions");
   localStorage.removeItem("quiz_user");
+  localStorage.removeItem("quiz_title");
 }
 function restoreSession() {
-  /**fungsi ini bertujuan untuk memastikan agar kuis dapat */
+  /**fungsi ini bertujuan untuk memastikan agar kuis dapat memuat informasi yang tersimpan bahkan saat ter refresh atau dalam keadaan signal yang jelek  */
   const endTime = localStorage.getItem("quiz_end_time");
   const savedAnswers = localStorage.getItem("quiz_answers");
   const savedIndex = localStorage.getItem("quiz_current_index");
   const savedQuestions = localStorage.getItem("quiz_questions");
   const savedUser = localStorage.getItem("quiz_user");
   const savedDuration = localStorage.getItem("quiz_duration");
-
+  const savedTitle = localStorage.getItem("quiz_title");
   // Jika ada data timer & soal tersimpan, berarti kuis masih berlangsung
   if (endTime && savedQuestions) {
     try {
@@ -60,6 +61,18 @@ function restoreSession() {
       state.user = savedUser ? JSON.parse(savedUser) : { nama: "Peserta" };
       state.durasiMenit = savedDuration ? parseInt(savedDuration, 10) : 20;
 
+      const elInfoUser = document.getElementById("infoUser");
+      if (elInfoUser && state.user) {
+        // Sesuaikan dengan struktur object state.user Anda (misal: state.user.nama atau state.user)
+        const namaPeserta =
+          typeof state.user === "object" ? state.user.nama : state.user;
+        elInfoUser.textContent = ` ${namaPeserta}`;
+      }
+
+      const elBrand = document.querySelector(".brand");
+      if (elBrand && savedTitle) {
+        elBrand.textContent = savedTitle;
+      }
       // Langsung pindah ke tampilan kuis
       showSection("quiz");
       startTimer(); // startTimer akan otomatis membaca 'quiz_end_time' dari localStorage
@@ -427,6 +440,7 @@ el("#btnMulai").addEventListener("click", async () => {
     localStorage.setItem("quiz_questions", JSON.stringify(questions));
     localStorage.setItem("quiz_user", JSON.stringify(state.user));
     localStorage.setItem("quiz_duration", durasiMenit);
+    localStorage.setItem("quiz_title", JSON.stringify(data.testTitle));
     localStorage.removeItem("quiz_end_time");
 
     showSection("quiz");
