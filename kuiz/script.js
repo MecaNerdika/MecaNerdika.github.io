@@ -2,7 +2,49 @@
 
 const webAppUrl =
   "https://script.google.com/macros/s/AKfycbzVIBIvjN3_cEjtRxwG5wHzi3lN9WIcaCitgDcBfAeJbraI24YbwE1Wd591UX3MIOzsFw/exec";
+const GAS_SUBMIT_URL =
+  "https://script.google.com/macros/s/AKfycbzP9eU5S3y6MZL70bnfgjOXqTcwkIap147sZGjQHjHEN6cjfh-hPSLP8b-uDRKhy8kt/exec";
+async function submitQuizData(payload, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(GAS_SUBMIT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
 
+      const result = await response.json();
+      if (result.status === "success") return { success: true };
+    } catch (error) {
+      console.warn(`Percobaan kirim ke-${attempt} gagal...`);
+      if (attempt === maxRetries) {
+        saveToOfflineQueue(payload);
+        return { success: false, isOfflineSaved: true };
+      }
+      await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+    }
+  }
+}
+
+function saveToOfflineQueue(payload) {
+  const queue = JSON.parse(
+    localStorage.getItem("quiz_pending_submissions") || "[]",
+  );
+  queue.push({ ...payload, failedAt: new Date().toISOString() });
+  localStorage.setItem("quiz_pending_submissions", JSON.stringify(queue));
+}
+function showLoading(show, text = "") {
+  const overlay = document.getElementById("loadingOverlay");
+  const loadingText = document.getElementById("loadingText");
+  if (overlay) {
+    if (show) {
+      if (loadingText) loadingText.textContent = text;
+      overlay.classList.remove("hidden");
+    } else {
+      overlay.classList.add("hidden");
+    }
+  }
+}
 let quizList = [];
 let questions = [];
 
@@ -345,22 +387,50 @@ function resetAnswers() {
   renderQuestion();
 }
 
-function submitQuiz() {
+async function submitQuiz() {
   document.title = "hasil Ujian";
   // hitung skor per kategori
   let totalBenar = 0;
+  let totalSalah = 0;
+  let totalKosong = 0;
 
   questions.forEach((q, idx) => {
     const pick = state.answers[idx];
     const correct = q.answer;
-    if (pick === correct) {
+    if (pick === undefined || pick === null) {
+      totalKosong++;
+    } else if (pick === correct) {
       totalBenar++;
+    } else {
+      totalSalah++;
     }
   });
   const total = totalBenar;
-
+  const totalSoal = questions.length;
+  const skorAkhir = totalBenar * 5;
+  const username =
+    typeof state.user === "object" ? state.user.nama : state.user || "Peserta";
+  const totalDetik = Math.floor((Date.now() - state.timeStart) / 1000);
+  const menit = Math.floor(totalDetik / 60);
+  const detik = totalDetik % 60;
+  const durasiFormatted = `${menit} menit ${detik} detik`;
   // tampilkan
   let total_question = questions.length;
+  payLoad = {
+    userName: username,
+    testID: state.testID,
+    testTitle: state.testTitle,
+    finalScore: skorAkhir,
+    correctAnswer: totalBenar,
+    wrongAnswer: totalSalah,
+    notAnswer: totalKosong,
+    timeTaken: durasiFormatted,
+  };
+  showLoading(true, "Menyimpan Hasil Pengerjaan...");
+
+  const response = await submitQuizData(payLoad);
+
+  showLoading(false);
 
   el("#scoreTotal").textContent = `${total} / ${total_question}`;
   el("#resultUser").textContent = `Peserta: ${
@@ -369,9 +439,13 @@ function submitQuiz() {
 
   // stop timer, ganti section
   if (timerInterval) clearInterval(timerInterval);
-  localStorage.removeItem("quiz_end_time");
 
   showSection("result");
+  if (response && response.isOfflineSaved) {
+    alert(
+      "Koneksi lambat. Hasil Anda telah tersimpan aman di perangkat ini dan akan otomatis tersinkronisasi saat online.",
+    );
+  }
   window.scrollTo({ top: 0, behavior: "smooth" });
   clearQuizSession();
 }
@@ -430,6 +504,9 @@ el("#btnMulai").addEventListener("click", async () => {
 
     state.answers = Array(questions.length).fill(null);
     state.user = { nama };
+    state.testID = data.testID;
+    state.testTitle = data.testTitle;
+    state.timeStart = Date.now();
 
     const durasiMenit = parseInt(data.testDuration) || 20;
     state.timeLeft = durasiMenit;
