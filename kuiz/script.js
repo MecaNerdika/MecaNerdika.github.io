@@ -3,7 +3,7 @@
 const webAppUrl =
   "https://script.google.com/macros/s/AKfycbzVIBIvjN3_cEjtRxwG5wHzi3lN9WIcaCitgDcBfAeJbraI24YbwE1Wd591UX3MIOzsFw/exec";
 const GAS_SUBMIT_URL =
-  "https://script.google.com/macros/s/AKfycbzP9eU5S3y6MZL70bnfgjOXqTcwkIap147sZGjQHjHEN6cjfh-hPSLP8b-uDRKhy8kt/exec";
+  "https://script.google.com/macros/s/AKfycbzueraoyehiJvXSmAP2BpkkKWbPgQHZmhGmnh5QZW8PU-bus3In0o3kyNLQz3otygdL/exec";
 async function submitQuizData(payload, maxRetries = 3) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
