@@ -378,3 +378,42 @@ label {
     transform: rotate(360deg);
   }
 }
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.leaderboard-table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+}
+
+.leaderboard-table tr:nth-child(1) td {
+  font-weight: bold;
+  color: #d97706; /* Emas untuk juara 1 */
+}
+
+.leaderboard-table tr:nth-child(2) td {
+  font-weight: bold;
+  color: #64748b; /* Perak untuk juara 2 */
+}
+
+.leaderboard-table tr:nth-child(3) td {
+  font-weight: bold;
+  color: #b45309; /* Perunggu untuk juara 3 */
+}

@@ -451,12 +451,18 @@ async function submitQuiz() {
 }
 
 function showSection(which) {
-  el("#section-form").classList.remove("active");
-  el("#section-quiz").classList.remove("active");
-  el("#section-result").classList.remove("active");
-  if (which === "form") el("#section-form").classList.add("active");
-  if (which === "quiz") el("#section-quiz").classList.add("active");
-  if (which === "result") el("#section-result").classList.add("active");
+  // 1. Sembunyikan/Nonaktifkan SEMUA section yang ada
+  document.querySelectorAll(".section").forEach((sec) => {
+    sec.classList.remove("active");
+  });
+
+  // 2. Aktifkan HANYA section yang dipanggil
+  const target = el(`#section-${which}`);
+  if (target) {
+    target.classList.add("active");
+  } else {
+    console.error(`Section dengan ID #section-${which} tidak ditemukan!`);
+  }
 }
 
 // EVENTS
@@ -602,3 +608,74 @@ el("#btnUlang").addEventListener("click", () => {
   mountNav();
   goTo(0);
 });
+
+// Event Listener Tombol Lihat Leaderboard
+if (el("#btnShowLeaderboard")) {
+  el("#btnShowLeaderboard").addEventListener("click", () => {
+    showSection("leaderboard");
+    fetchLeaderboard(state.testID);
+  });
+}
+
+if (el("#btnBackToResult")) {
+  el("#btnBackToResult").addEventListener("click", () => {
+    showSection("result");
+  });
+}
+
+// Fungsi Fetch Data dari Apps Script
+async function fetchLeaderboard(testID) {
+  console.log("1. Fungsi fetchLeaderboard dipanggil. testID =", testID);
+  const tbody = el("#leaderboardBody");
+
+  if (!tbody) {
+    console.error("CRITICAL: Elemen #leaderboardBody tidak ditemukan di HTML!");
+    return;
+  }
+  tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Memuat data peringkat...</td></tr>`;
+
+  try {
+    const response = await fetch(
+      `${GAS_SUBMIT_URL}?action=getLeaderboard&testID=${encodeURIComponent(testID)}`, //ganti verbal001 menjadi test id setelah debuging selesai
+    );
+    console.log("2. Mengirim request ke URL:");
+    console.log("3. Response HTTP diterima:", response);
+    const result = await response.json();
+    console.log("4. Parsed JSON dari GAS:", result);
+
+    if (result.status === "success" && result.data.length > 0) {
+      console.log(
+        "5. Format data valid. Jumlah baris data:",
+        result.data.length,
+      );
+      tbody.innerHTML = "";
+      result.data.forEach((item, index) => {
+        const badge =
+          index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : "";
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${badge}${index + 1}</td>
+          <td>${escapeHtml(item.userName)}</td>
+          <td><strong>${item.score}</strong></td>
+          <td>${item.timeTaken}</td>
+        `;
+        tbody.appendChild(row);
+      });
+      console.log("6. Berhasil merender tabel leaderboard!");
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Belum ada data peringkat untuk kuis ini.</td></tr>`;
+    }
+  } catch (error) {
+    console.error(error);
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Gagal memuat peringkat.</td></tr>`;
+  }
+}
+
+// Helper sederhana untuk keamanan teks HTML
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}

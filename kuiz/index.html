@@ -148,11 +148,54 @@
             </div>
             <div>
               <button class="btn" id="btnUlang">Mulai Lagi</button>
+              <button class="btn secondary" id="btnShowLeaderboard">
+                Lihat Peringkat
+              </button>
+              <button class="btn secondary" id="btnBacktoDashboard">
+                Kembali ke Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: LEADERBOARD -->
+      <section id="section-leaderboard" class="section">
+        <div class="card">
+          <div class="card-inner">
+            <h2 style="margin-bottom: 5px">Papan Peringkat Top 10</h2>
+            <p class="muted" id="leaderboardTitle">Peringkat Tertinggi</p>
+
+            <div class="table-responsive" style="margin-top: 15px">
+              <table class="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nama Peserta</th>
+                    <th>Skor</th>
+                    <th>Waktu</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                  <tr>
+                    <td colspan="4" style="text-align: center">
+                      Memuat data peringkat...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="margin-top: 20px">
+              <button class="btn secondary" id="btnBackToResult">
+                Kembali ke Hasil
+              </button>
             </div>
           </div>
         </div>
       </section>
     </div>
+
     <!-- overlay saat mencoba mengirimkan hasil kuis ke server -->
     <div id="loadingOverlay" class="loading-overlay hidden">
       <div class="spinner"></div>
