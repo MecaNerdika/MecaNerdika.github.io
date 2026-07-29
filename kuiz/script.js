@@ -82,6 +82,9 @@ function clearQuizSession() {
   localStorage.removeItem("quiz_questions");
   localStorage.removeItem("quiz_user");
   localStorage.removeItem("quiz_title");
+  localStorage.removeItem("testID");
+  localStorage.removeItem("testTitle");
+  localStorage.removeItem("timeStart");
 }
 function restoreSession() {
   /**fungsi ini bertujuan untuk memastikan agar kuis dapat memuat informasi yang tersimpan bahkan saat ter refresh atau dalam keadaan signal yang jelek  */
@@ -92,6 +95,9 @@ function restoreSession() {
   const savedUser = localStorage.getItem("quiz_user");
   const savedDuration = localStorage.getItem("quiz_duration");
   const savedTitle = localStorage.getItem("quiz_title");
+  const savedtestID = localStorage.getItem("testID");
+  const savedTimeStart = localStorage.getItem("timeStart");
+
   // Jika ada data timer & soal tersimpan, berarti kuis masih berlangsung
   if (endTime && savedQuestions) {
     try {
@@ -102,6 +108,9 @@ function restoreSession() {
       state.currentIndex = savedIndex ? parseInt(savedIndex, 10) : 0;
       state.user = savedUser ? JSON.parse(savedUser) : { nama: "Peserta" };
       state.durasiMenit = savedDuration ? parseInt(savedDuration, 10) : 20;
+      state.testID = savedtestID;
+      state.testTitle = savedTitle;
+      state.timeStart = savedTimeStart;
 
       const elInfoUser = document.getElementById("infoUser");
       if (elInfoUser && state.user) {
@@ -511,8 +520,12 @@ el("#btnMulai").addEventListener("click", async () => {
     state.answers = Array(questions.length).fill(null);
     state.user = { nama };
     state.testID = data.testID;
+
+    localStorage.setItem("testID", state.testID);
     state.testTitle = data.testTitle;
+
     state.timeStart = Date.now();
+    localStorage.setItem("timeStart", state.timeStart);
 
     const durasiMenit = parseInt(data.testDuration) || 20;
     state.timeLeft = durasiMenit;
@@ -523,7 +536,7 @@ el("#btnMulai").addEventListener("click", async () => {
     localStorage.setItem("quiz_questions", JSON.stringify(questions));
     localStorage.setItem("quiz_user", JSON.stringify(state.user));
     localStorage.setItem("quiz_duration", durasiMenit);
-    localStorage.setItem("quiz_title", JSON.stringify(data.testTitle));
+    localStorage.setItem("quiz_title", data.testTitle);
     localStorage.removeItem("quiz_end_time");
 
     showSection("quiz");
@@ -611,6 +624,7 @@ el("#btnUlang").addEventListener("click", () => {
 
 // Event Listener Tombol Lihat Leaderboard
 if (el("#btnShowLeaderboard")) {
+  console.log("tombol leaderboard di eksekusi");
   el("#btnShowLeaderboard").addEventListener("click", () => {
     showSection("leaderboard");
     fetchLeaderboard(state.testID);
