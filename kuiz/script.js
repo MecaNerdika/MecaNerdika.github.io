@@ -388,14 +388,6 @@ function prev() {
   }
 }
 
-function resetAnswers() {
-  if (!confirm("Yakin reset semua jawaban?")) return;
-  state.answers = Array(questions.length).fill(null);
-  localStorage.setItem("quiz_answers", JSON.stringify(state.answers));
-  updateNavActive();
-  renderQuestion();
-}
-
 async function submitQuiz() {
   document.title = "hasil Ujian";
   // hitung skor per kategori
@@ -581,7 +573,6 @@ el("#btnMulai").addEventListener("click", () => {
 
 el("#prevBtn").addEventListener("click", prev);
 el("#nextBtn").addEventListener("click", next);
-el("#btnReset").addEventListener("click", resetAnswers);
 el("#btnSubmit").addEventListener("click", () => {
   if (confirm("Kumpulkan jawaban sekarang?")) submitQuiz();
 });
@@ -600,29 +591,6 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
-// Ulang dari hasil
-el("#btnUlang").addEventListener("click", () => {
-  state.currentIndex = 0;
-  state.answers = Array(questions.length).fill(null);
-
-  questions = shuffle(questions);
-
-  localStorage.removeItem("quiz_end_time");
-
-  localStorage.setItem("quiz_questions", JSON.stringify(questions));
-  localStorage.setItem("quiz_answers", JSON.stringify(state.answers));
-  const durasi =
-    state.durasiMenit ||
-    parseInt(localStorage.getItem("quiz_duration"), 10) ||
-    20;
-
-  showSection("quiz");
-  startTimer(state.durasiMenit);
-  mountNav();
-  goTo(0);
-});
-
-// Event Listener Tombol Lihat Leaderboard
 if (el("#btnShowLeaderboard")) {
   console.log("tombol leaderboard di eksekusi");
   el("#btnShowLeaderboard").addEventListener("click", () => {
