@@ -2,7 +2,49 @@
 
 const webAppUrl =
   "https://script.google.com/macros/s/AKfycbzVIBIvjN3_cEjtRxwG5wHzi3lN9WIcaCitgDcBfAeJbraI24YbwE1Wd591UX3MIOzsFw/exec";
+const GAS_SUBMIT_URL =
+  "https://script.google.com/macros/s/AKfycbzueraoyehiJvXSmAP2BpkkKWbPgQHZmhGmnh5QZW8PU-bus3In0o3kyNLQz3otygdL/exec";
+async function submitQuizData(payload, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(GAS_SUBMIT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
 
+      const result = await response.json();
+      if (result.status === "success") return { success: true };
+    } catch (error) {
+      console.warn(`Percobaan kirim ke-${attempt} gagal...`);
+      if (attempt === maxRetries) {
+        saveToOfflineQueue(payload);
+        return { success: false, isOfflineSaved: true };
+      }
+      await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+    }
+  }
+}
+
+function saveToOfflineQueue(payload) {
+  const queue = JSON.parse(
+    localStorage.getItem("quiz_pending_submissions") || "[]",
+  );
+  queue.push({ ...payload, failedAt: new Date().toISOString() });
+  localStorage.setItem("quiz_pending_submissions", JSON.stringify(queue));
+}
+function showLoading(show, text = "") {
+  const overlay = document.getElementById("loadingOverlay");
+  const loadingText = document.getElementById("loadingText");
+  if (overlay) {
+    if (show) {
+      if (loadingText) loadingText.textContent = text;
+      overlay.classList.remove("hidden");
+    } else {
+      overlay.classList.add("hidden");
+    }
+  }
+}
 let quizList = [];
 let questions = [];
 
@@ -29,27 +71,46 @@ document.addEventListener("click", (e) => {
 });
 
 // Pulihkan tema tersimpan saat halaman dimuat (DOMContentLoaded)
-document.addEventListener("DOMContentLoaded", () => {
-  const savedTheme = localStorage.getItem("quiz_theme") || "dark";
-  setTheme(savedTheme);
-});
+// Variabel global untuk menyimpan referensi ID interval
+
 function clearQuizSession() {
+  stopTimer();
+  // hapus semua cache agar memori lebih bersih dan menghindari bug saat merefresh jawaban
   localStorage.removeItem("quiz_end_time");
   localStorage.removeItem("quiz_answers");
   localStorage.removeItem("quiz_current_index");
   localStorage.removeItem("quiz_questions");
   localStorage.removeItem("quiz_user");
   localStorage.removeItem("quiz_title");
+  localStorage.removeItem("testID");
+  localStorage.removeItem("testTitle");
+  localStorage.removeItem("timeStart");
+
+  let elBrand = document.querySelector(".brand");
+  elBrand.textContent = "Ujian Education Priority";
+  let elInfoUser = document.getElementById("infoUser");
+  elInfoUser.textContent = "Belum login";
+  // kebali ke initial state agar tidak menimbulkan data dowble
+  // state = JSON.parse(JSON.stringify(initialState));
+
+  console.log("Sesi kuis dan state berhasil dibersihkan!", state);
 }
 function restoreSession() {
   /**fungsi ini bertujuan untuk memastikan agar kuis dapat memuat informasi yang tersimpan bahkan saat ter refresh atau dalam keadaan signal yang jelek  */
   const endTime = localStorage.getItem("quiz_end_time");
+  // endTime bertipe integer
   const savedAnswers = localStorage.getItem("quiz_answers");
+  // savaed
   const savedIndex = localStorage.getItem("quiz_current_index");
   const savedQuestions = localStorage.getItem("quiz_questions");
   const savedUser = localStorage.getItem("quiz_user");
   const savedDuration = localStorage.getItem("quiz_duration");
   const savedTitle = localStorage.getItem("quiz_title");
+  const savedtestID = localStorage.getItem("testID");
+
+  const savedTimeStart = localStorage.getItem("timeStart");
+  // time start bertipe integer
+
   // Jika ada data timer & soal tersimpan, berarti kuis masih berlangsung
   if (endTime && savedQuestions) {
     try {
@@ -60,8 +121,11 @@ function restoreSession() {
       state.currentIndex = savedIndex ? parseInt(savedIndex, 10) : 0;
       state.user = savedUser ? JSON.parse(savedUser) : { nama: "Peserta" };
       state.durasiMenit = savedDuration ? parseInt(savedDuration, 10) : 20;
+      state.testID = savedtestID;
+      state.testTitle = savedTitle;
+      state.timeStart = savedTimeStart;
 
-      const elInfoUser = document.getElementById("infoUser");
+      let elInfoUser = document.getElementById("infoUser");
       if (elInfoUser && state.user) {
         // Sesuaikan dengan struktur object state.user Anda (misal: state.user.nama atau state.user)
         const namaPeserta =
@@ -69,7 +133,7 @@ function restoreSession() {
         elInfoUser.textContent = ` ${namaPeserta}`;
       }
 
-      const elBrand = document.querySelector(".brand");
+      let elBrand = document.querySelector(".brand");
       if (elBrand && savedTitle) {
         elBrand.textContent = savedTitle;
       }
@@ -82,12 +146,106 @@ function restoreSession() {
       console.error("Gagal memulihkan sesi kuis:", e);
       clearQuizSession();
     }
+  } else {
+    showSection("dashboard");
+  }
+}
+function initDashboardActions() {
+  // A. Handling Tombol "Mulai" pada Kartu Prioritas
+  const startButtons = document.querySelectorAll(".btn-start-quiz");
+  startButtons.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      // Ambil elemen kartu terdekat untuk membaca dataset
+      const card = e.target.closest(".quiz-card");
+      if (!card) return;
+
+      const testID = card.getAttribute("data-testid");
+      const testTitle = card.getAttribute("data-title");
+
+      // Set ke state aplikasi
+      state.testID = testID;
+      state.testTitle = testTitle;
+
+      // Persist ke localStorage agar aman dari refresh
+      localStorage.setItem("testID", JSON.stringify(state.testID));
+      localStorage.setItem("testTitle", JSON.stringify(state.testTitle));
+
+      // Isi otomatis dropdown/input pilihan ujian di form login
+      const inputTestID = el("#inputTestID"); // Sesuaikan ID input/select Anda
+      if (inputTestID) {
+        inputTestID.value = state.testID;
+      }
+
+      // Pindah ke section form login
+      showSection("form");
+    });
+  });
+
+  // B. Handling Tombol "Leaderboard" pada Kartu Prioritas
+  const leaderboardButtons = document.querySelectorAll(".btn-view-leaderboard");
+  leaderboardButtons.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const card = e.target.closest(".quiz-card");
+      if (!card) return;
+
+      const testID = card.getAttribute("data-testid");
+      const testTitle = card.getAttribute("data-title");
+
+      // Simpan konteks kuis yang ingin dilihat ke state
+      state.testID = testID;
+      state.testTitle = testTitle;
+
+      localStorage.setItem("testID", JSON.stringify(state.testID));
+      localStorage.setItem("testTitle", JSON.stringify(state.testTitle));
+
+      // Pindah ke section leaderboard & muat data dari GAS
+      showSection("leaderboard");
+      if (typeof loadLeaderboardData === "function") {
+        loadLeaderboardData(testID);
+      }
+    });
+  });
+
+  // C. Handling Tombol "Pilih & Cari Ujian Lainnya"
+  const btnOtherQuizzes = el("#btnOtherQuizzes");
+  if (btnOtherQuizzes) {
+    btnOtherQuizzes.addEventListener("click", () => {
+      // Kosongkan/reset state kuis tergolong
+      state.testID = "";
+      state.testTitle = "";
+
+      localStorage.removeItem("testID");
+      localStorage.removeItem("testTitle");
+
+      // Reset pilihan di form login jika ada
+      const inputTestID = el("#inputTestID");
+      if (inputTestID) {
+        inputTestID.value = ""; // Peserta memilih kuis sendiri di form
+      }
+
+      // Pindah langsung ke section form login
+      showSection("form");
+    });
   }
 }
 
 // Jalankan pemulihan saat seluruh halaman HTML selesai dimuat
-document.addEventListener("DOMContentLoaded", restoreSession);
+document.addEventListener("DOMContentLoaded", () => {
+  // 1. Inisialisasi Tampilan (Tema & Ukuran Font)
+  const savedTheme = localStorage.getItem("quiz_theme") || "dark";
+  setTheme(savedTheme);
 
+  const savedSize = localStorage.getItem("quiz_font_size") || "medium";
+  setFontSize(savedSize);
+
+  // 2. Aktifkan Listener Tombol-Tombol Dashboard
+  // (Dipasang lebih awal agar tombol siap saat pengguna berada di Dashboard)
+  initDashboardActions();
+
+  // 3. Tentukan Section yang Tampil (Quiz atau Dashboard)
+  // Fungsi ini otomatis memanggil showSection("quiz") ATAU showSection("dashboard")
+  restoreSession();
+});
 const el = (sel) => document.querySelector(sel);
 const els = (sel) => Array.from(document.querySelectorAll(sel));
 const shuffle = (arr) =>
@@ -154,17 +312,37 @@ function shuffleOptions(q) {
     answer: newAnswer,
   };
 }
-
-let state = {
-  user: null,
-  timeLeft: null,
+const initialState = {
+  questions: [],
+  answers: {},
   currentIndex: 0,
-  answers: [],
+  user: null,
+  testID: null,
+  testTitle: "",
+  timeStart: null,
+  endTime: null,
 };
+let state = { ...initialState };
 
 let timerInterval = null;
 
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval); // Hentikan detikannya di RAM
+    timerInterval = null; // Kosongkan referensinya
+  }
+
+  // Opsional: Reset teks UI timer
+  const elTimer = el("#timer");
+  if (elTimer) {
+    elTimer.textContent = "--:--";
+    elTimer.style.background = "";
+    elTimer.style.borderColor = "";
+  }
+}
+
 function startTimer(durasiMenit) {
+  stopTimer();
   if (timerInterval) clearInterval(timerInterval);
   let endTime = localStorage.getItem("quiz_end_time");
 
@@ -270,10 +448,6 @@ document.addEventListener("click", (e) => {
 });
 
 // Pulihkan ukuran font tersimpan saat pertama kali dimuat
-document.addEventListener("DOMContentLoaded", () => {
-  const savedSize = localStorage.getItem("quiz_font_size") || "medium";
-  setFontSize(savedSize);
-});
 
 function renderQuestion() {
   const q = questions[state.currentIndex];
@@ -337,30 +511,50 @@ function prev() {
   }
 }
 
-function resetAnswers() {
-  if (!confirm("Yakin reset semua jawaban?")) return;
-  state.answers = Array(questions.length).fill(null);
-  localStorage.setItem("quiz_answers", JSON.stringify(state.answers));
-  updateNavActive();
-  renderQuestion();
-}
-
-function submitQuiz() {
+async function submitQuiz() {
   document.title = "hasil Ujian";
   // hitung skor per kategori
   let totalBenar = 0;
+  let totalSalah = 0;
+  let totalKosong = 0;
 
   questions.forEach((q, idx) => {
     const pick = state.answers[idx];
     const correct = q.answer;
-    if (pick === correct) {
+    if (pick === undefined || pick === null) {
+      totalKosong++;
+    } else if (pick === correct) {
       totalBenar++;
+    } else {
+      totalSalah++;
     }
   });
   const total = totalBenar;
-
+  const totalSoal = questions.length;
+  const skorAkhir = totalBenar * 5;
+  const username =
+    typeof state.user === "object" ? state.user.nama : state.user || "Peserta";
+  const totalDetik = Math.floor((Date.now() - state.timeStart) / 1000);
+  const menit = Math.floor(totalDetik / 60);
+  const detik = totalDetik % 60;
+  const durasiFormatted = `${menit} menit ${detik} detik`;
   // tampilkan
   let total_question = questions.length;
+  payLoad = {
+    userName: username,
+    testID: state.testID,
+    testTitle: state.testTitle,
+    finalScore: skorAkhir,
+    correctAnswer: totalBenar,
+    wrongAnswer: totalSalah,
+    notAnswer: totalKosong,
+    timeTaken: durasiFormatted,
+  };
+  showLoading(true, "Menyimpan Hasil Pengerjaan...");
+
+  const response = await submitQuizData(payLoad);
+
+  showLoading(false);
 
   el("#scoreTotal").textContent = `${total} / ${total_question}`;
   el("#resultUser").textContent = `Peserta: ${
@@ -369,20 +563,30 @@ function submitQuiz() {
 
   // stop timer, ganti section
   if (timerInterval) clearInterval(timerInterval);
-  localStorage.removeItem("quiz_end_time");
 
   showSection("result");
+  if (response && response.isOfflineSaved) {
+    alert(
+      "Koneksi lambat. Hasil Anda telah tersimpan aman di perangkat ini dan akan otomatis tersinkronisasi saat online.",
+    );
+  }
   window.scrollTo({ top: 0, behavior: "smooth" });
   clearQuizSession();
 }
 
 function showSection(which) {
-  el("#section-form").classList.remove("active");
-  el("#section-quiz").classList.remove("active");
-  el("#section-result").classList.remove("active");
-  if (which === "form") el("#section-form").classList.add("active");
-  if (which === "quiz") el("#section-quiz").classList.add("active");
-  if (which === "result") el("#section-result").classList.add("active");
+  // 1. Sembunyikan/Nonaktifkan SEMUA section yang ada
+  document.querySelectorAll(".section").forEach((sec) => {
+    sec.classList.remove("active");
+  });
+
+  // 2. Aktifkan HANYA section yang dipanggil
+  const target = el(`#section-${which}`);
+  if (target) {
+    target.classList.add("active");
+  } else {
+    console.error(`Section dengan ID #section-${which} tidak ditemukan!`);
+  }
 }
 
 // EVENTS
@@ -430,6 +634,13 @@ el("#btnMulai").addEventListener("click", async () => {
 
     state.answers = Array(questions.length).fill(null);
     state.user = { nama };
+    state.testID = data.testID;
+
+    localStorage.setItem("testID", state.testID);
+    state.testTitle = data.testTitle;
+
+    state.timeStart = Date.now();
+    localStorage.setItem("timeStart", state.timeStart);
 
     const durasiMenit = parseInt(data.testDuration) || 20;
     state.timeLeft = durasiMenit;
@@ -440,7 +651,7 @@ el("#btnMulai").addEventListener("click", async () => {
     localStorage.setItem("quiz_questions", JSON.stringify(questions));
     localStorage.setItem("quiz_user", JSON.stringify(state.user));
     localStorage.setItem("quiz_duration", durasiMenit);
-    localStorage.setItem("quiz_title", JSON.stringify(data.testTitle));
+    localStorage.setItem("quiz_title", data.testTitle);
     localStorage.removeItem("quiz_end_time");
 
     showSection("quiz");
@@ -457,35 +668,8 @@ el("#btnMulai").addEventListener("click", async () => {
   }
 });
 
-/** 
-el("#btnMulai").addEventListener("click", () => {
-  const nama = el("#nama").value.trim();
-  const pass = el("#pass").value.trim();
-  if (!nama || !pass) {
-    alert("Nama dan password wajib diisi.");
-    return;
-  }
-  if (pass !== "JADITARUNA") {
-    alert(
-      "password salah! tanya password ke sir hardi. klo sir hardi dak tau tanya ke sir meca",
-    );
-    return;
-  }
-
-
-  state.user = { nama, pass };
-  el("#infoUser").textContent = `Peserta: ${nama}`;
-  showSection("quiz");
-  startTimer();
-  mountNav();
-  goTo(0);
-  renderTimer();
-});
-*/
-
 el("#prevBtn").addEventListener("click", prev);
 el("#nextBtn").addEventListener("click", next);
-el("#btnReset").addEventListener("click", resetAnswers);
 el("#btnSubmit").addEventListener("click", () => {
   if (confirm("Kumpulkan jawaban sekarang?")) submitQuiz();
 });
@@ -504,24 +688,122 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
-// Ulang dari hasil
-el("#btnUlang").addEventListener("click", () => {
-  state.currentIndex = 0;
-  state.answers = Array(questions.length).fill(null);
+if (el("#btnShowLeaderboard")) {
+  console.log("tombol leaderboard di eksekusi");
+  el("#btnShowLeaderboard").addEventListener("click", () => {
+    showSection("leaderboard");
+    fetchLeaderboard(state.testID);
+  });
+}
 
-  questions = shuffle(questions);
+if (el("#btnBackToResult")) {
+  el("#btnBackToResult").addEventListener("click", () => {
+    showSection("result");
+  });
+}
 
-  localStorage.removeItem("quiz_end_time");
+// Fungsi Fetch Data dari Apps Script
+async function fetchLeaderboard(testID) {
+  console.log("1. Fungsi fetchLeaderboard dipanggil. testID =", testID);
+  const tbody = el("#leaderboardBody");
 
-  localStorage.setItem("quiz_questions", JSON.stringify(questions));
-  localStorage.setItem("quiz_answers", JSON.stringify(state.answers));
-  const durasi =
-    state.durasiMenit ||
-    parseInt(localStorage.getItem("quiz_duration"), 10) ||
-    20;
+  if (!tbody) {
+    console.error("CRITICAL: Elemen #leaderboardBody tidak ditemukan di HTML!");
+    return;
+  }
+  tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Memuat data peringkat...</td></tr>`;
 
-  showSection("quiz");
-  startTimer(state.durasiMenit);
-  mountNav();
-  goTo(0);
-});
+  try {
+    const response = await fetch(
+      `${GAS_SUBMIT_URL}?action=getLeaderboard&testID=${encodeURIComponent(testID)}`, //ganti verbal001 menjadi test id setelah debuging selesai
+    );
+    console.log("2. Mengirim request ke URL:");
+    console.log("3. Response HTTP diterima:", response);
+    const result = await response.json();
+    console.log("4. Parsed JSON dari GAS:", result);
+
+    if (result.status === "success" && result.data.length > 0) {
+      console.log(
+        "5. Format data valid. Jumlah baris data:",
+        result.data.length,
+      );
+      tbody.innerHTML = "";
+      result.data.forEach((item, index) => {
+        const badge =
+          index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : "";
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${badge}${index + 1}</td>
+          <td>${escapeHtml(item.userName)}</td>
+          <td><strong>${item.score}</strong></td>
+          <td>${item.timeTaken}</td>
+        `;
+        tbody.appendChild(row);
+      });
+      console.log("6. Berhasil merender tabel leaderboard!");
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Belum ada data peringkat untuk kuis ini.</td></tr>`;
+    }
+  } catch (error) {
+    console.error(error);
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Gagal memuat peringkat.</td></tr>`;
+  }
+}
+
+// Helper sederhana untuk keamanan teks HTML
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+const btnleadDash = el("#btnBacktoDashboardFromleaderboard");
+if (btnleadDash) {
+  btnleadDash.addEventListener("click", () => {
+    //console.log("Tombol Kembali ke Dashboard dari Leaderboard diklik");
+    showSection("dashboard");
+  });
+}
+const btnResultDash = el("#btnBacktoDashboardFromResult");
+if (btnResultDash) {
+  btnResultDash.addEventListener("click", () => {
+    //console.log("Tombol Kembali ke Dashboard dari Leaderboard diklik");
+    showSection("dashboard");
+  });
+}
+const btnFormtDash = el("#btnBacktoDashboardFromform");
+if (btnFormtDash) {
+  btnFormtDash.addEventListener("click", () => {
+    //console.log("Tombol Kembali ke Dashboard dari Leaderboard diklik");
+    showSection("dashboard");
+  });
+}
+const btnkuizDash = el("#btnBacktoDashboardFromkuiz");
+if (btnkuizDash) {
+  btnkuizDash.addEventListener("click", () => {
+    // 1. Tampilkan dialog konfirmasi
+    const isSure = confirm(
+      "Apakah Anda yakin ingin keluar dari kuis?\n\nProgres pengerjaan dan waktu ujian Anda akan dihentikan.",
+    );
+
+    // 2. Jika pengguna mengklik "OK" (isSure === true)
+    if (isSure) {
+      // Hapus seluruh data sesi kuis di localStorage
+      if (typeof clearQuizSession === "function") {
+        clearQuizSession();
+        state = JSON.parse(JSON.stringify(initialState));
+      }
+
+      // (Opsional) Hentikan interval timer jika sedang berjalan
+      if (typeof stopTimer === "function") {
+        stopTimer();
+      }
+
+      // Alihkan layar kembali ke Dashboard
+      showSection("dashboard");
+    }
+    // Jika pengguna memilih "Batal", tidak ada tindakan yang terjadi dan kuis tetap berjalan.
+  });
+}

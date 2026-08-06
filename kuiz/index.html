@@ -24,9 +24,122 @@
         <div class="pill" id="infoUser">Belum login</div>
         <div class="timer" id="timer">--:--</div>
       </header>
+      <section id="section-dashboard" class="section active">
+        <div class="dash-container">
+          <!-- 1. HEADER & HERO BANNER -->
+          <header class="dash-hero">
+            <span class="badge-live">🔥 Tryout Akbar Live</span>
+            <h1 class="dash-title">Platform Tryout Online</h1>
+            <p class="dash-subtitle">
+              Pilih ujian prioritas di bawah ini atau daftar untuk gelombang
+              berikutnya.
+            </p>
+          </header>
 
+          <!-- 2. KARTU UJIAN PRIORITAS / TRYOUT AKBAR -->
+          <div class="section-block">
+            <h2 class="block-title">🏆 Tryout Akbar Utama</h2>
+            <div class="quiz-grid" id="priorityQuizGrid">
+              <!-- Contoh Kartu Prioritas 1 -->
+              <div
+                class="quiz-card priority"
+                data-testid="TRYOUT-AKBAR-01"
+                data-title="Tryout Akbar CPNS SKD 2026"
+              >
+                <div class="card-tag">Utama</div>
+                <h3 class="card-quiz-title">Tryout Akbar CPNS SKD 2026</h3>
+                <ul class="card-meta">
+                  <li>⏱️ 90 Menit</li>
+                  <li>📝 110 Soal</li>
+                </ul>
+                <div class="card-actions">
+                  <button class="btn primary btn-start-quiz">Mulai ➔</button>
+                  <button class="btn secondary btn-view-leaderboard">
+                    📊 Leaderboard
+                  </button>
+                </div>
+              </div>
+
+              <!-- Contoh Kartu Prioritas 2 -->
+              <div
+                class="quiz-card priority"
+                data-testid="TRYOUT-AKBAR-02"
+                data-title="Simulasi AKD Polri 2026"
+              >
+                <div class="card-tag">Utama</div>
+                <h3 class="card-quiz-title">Simulasi AKD Polri 2026</h3>
+                <ul class="card-meta">
+                  <li>⏱️ 60 Menit</li>
+                  <li>📝 80 Soal</li>
+                </ul>
+                <div class="card-actions">
+                  <button class="btn primary btn-start-quiz">Mulai ➔</button>
+                  <button class="btn secondary btn-view-leaderboard">
+                    📊 Leaderboard
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. TOMBOL UJIAN LAINNYA -->
+          <div class="section-block text-center" style="margin: 32px 0">
+            <p class="muted-text">
+              Ingin mengerjakan latihan soal atau tryout kategori lain?
+            </p>
+            <button class="btn outline btn-lg" id="btnOtherQuizzes">
+              🔍 Pilih & Cari Ujian Lainnya ➔
+            </button>
+          </div>
+
+          <!-- 4. PETUNJUK & LINK PENDAFTARAN GOOGLE FORM -->
+          <div class="section-block info-box">
+            <div class="info-content">
+              <h3>📌 Petunjuk & Pendaftaran Tryout Gelombang Baru</h3>
+              <p>
+                Belum terdaftar sebagai peserta Tryout Akbar resmi? Silakan isi
+                formulir pendaftaran terlebih dahulu untuk mendapatkan nomor
+                peserta dan akses ujian.
+              </p>
+              <div class="info-buttons">
+                <!-- Ganti link di bawah dengan link Google Form Anda -->
+                <a
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSdrT-KwVizI8PmFj9PqtIfoT813EZOQVbqenFL8mWQ3AS_vnQ/viewform?usp=header"
+                  target="_blank"
+                  rel="noopener"
+                  class="btn warning"
+                >
+                  📝 Formulir Pendaftaran (Google Form) ↗
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. DAFTAR TRYOUT MENDATANG (UPCOMING) -->
+          <div class="section-block" style="margin-top: 32px">
+            <h2 class="block-title">📅 Tryout Segera Hadir</h2>
+            <div class="upcoming-list">
+              <div class="upcoming-item">
+                <div class="upcoming-info">
+                  <strong>Tryout Spesial Penalaran & Logika</strong>
+                  <span class="upcoming-date">🗓️ Rilis: 15 Agustus 2026</span>
+                </div>
+                <span class="badge-upcoming">Segera Hadir</span>
+              </div>
+
+              <div class="upcoming-item">
+                <div class="upcoming-info">
+                  <strong>Simulasi CAT PPPK 2026</strong>
+                  <span class="upcoming-date">🗓️ Rilis: 22 Agustus 2026</span>
+                </div>
+                <span class="badge-upcoming">Segera Hadir</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       <!-- SECTION 1: FORM MINIMAL -->
-      <section id="section-form" class="section active">
+      <section id="section-form" class="section">
         <div class="card">
           <div class="card-inner grid">
             <div>
@@ -53,6 +166,9 @@
                   <input id="pass" type="password" placeholder="Password" />
                 </div>
                 <button class="btn" id="btnMulai">Mulai Kuis</button>
+                <button class="btn secondary" id="btnBacktoDashboardFromform">
+                  Kembali ke Dashboard
+                </button>
               </div>
             </div>
           </div>
@@ -125,7 +241,9 @@
                 <button class="btn warn" id="btnSubmit">
                   Kumpulkan Jawaban
                 </button>
-                <button class="btn danger" id="btnReset">Reset Jawaban</button>
+                <button class="btn secondary" id="btnBacktoDashboardFromkuiz">
+                  Kembali ke Dashboard
+                </button>
               </div>
             </div>
           </div>
@@ -147,11 +265,64 @@
               </div>
             </div>
             <div>
-              <button class="btn" id="btnUlang">Mulai Lagi</button>
+              <button class="btn secondary" id="btnShowLeaderboard">
+                Lihat Peringkat
+              </button>
+              <button class="btn secondary" id="btnBacktoDashboardFromResult">
+                Kembali ke Dashboard
+              </button>
             </div>
           </div>
         </div>
       </section>
+
+      <!-- SECTION 4: LEADERBOARD -->
+      <section id="section-leaderboard" class="section">
+        <div class="card">
+          <div class="card-inner">
+            <h2 style="margin-bottom: 5px">Papan Peringkat Top 10</h2>
+            <p class="muted" id="leaderboardTitle">Peringkat Tertinggi</p>
+
+            <div class="table-responsive" style="margin-top: 15px">
+              <table class="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nama Peserta</th>
+                    <th>Skor</th>
+                    <th>Waktu</th>
+                  </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                  <tr>
+                    <td colspan="4" style="text-align: center">
+                      Memuat data peringkat...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="margin-top: 20px">
+              <button class="btn secondary" id="btnBackToResult">
+                Kembali ke Hasil
+              </button>
+              <button
+                class="btn secondary"
+                id="btnBacktoDashboardFromleaderboard"
+              >
+                Kembali ke Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- overlay saat mencoba mengirimkan hasil kuis ke server -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+      <div class="spinner"></div>
+      <p id="loadingText">Menyimpan hasil pengerjaan Anda...</p>
     </div>
     <script src="script.js"></script>
   </body>
